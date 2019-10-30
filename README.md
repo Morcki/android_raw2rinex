@@ -17,13 +17,13 @@ type     : FIX / RAW
 
 ## mode
 
-*FIX:
++FIX:
 
 Get positioning results by android inner algorithm.
 
 Output `*.out` file with format `YYYY/mm/dd HH:MM:SS X Y Z`
 
-*RAW:
++RAW:
 
 Convert raw data to rinex 3.x format.
 
@@ -31,4 +31,4 @@ Output `*.o` file.
 
 ## reference
 
-Android GNSS raw measurements[https://gnss-compare.readthedocs.io/en/latest/user_manual/android_gnssMeasurements.html?tdsourcetag=s_pctim_aiomsg].
+Refence : [Android GNSS raw measurements](https://gnss-compare.readthedocs.io/en/latest/user_manual/android_gnssMeasurements.html?tdsourcetag=s_pctim_aiomsg].)
