@@ -13,7 +13,7 @@ MEANTFLIGHTSECONDS = 75e-3;
 mu = 3.986005e14      # WGS-84 Universal gravitational parameter (m^3/sec^2)
 WE = 7.2921151467e-5  # WGS 84 value of earth's rotation rate (rad/s)
 WEEKSEC = 604800      # number of seconds in a week
-MILLISEC = 10e8       # number of nano seconds in 100ms    
+MILLISEC = 10e8       # number of nano seconds in 100ms 
 # frequency here
 GPS_FREQ	= 10230000.0
 GPS_L1	    = 154*GPS_FREQ

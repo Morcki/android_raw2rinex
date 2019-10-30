@@ -129,10 +129,16 @@ class RawDataReader():
             self._saveEpochData(None,pick=True,gnssRaw=gnssRaw)
             self._checkGnssClock(gnssRaw.gnssRaw,gnssRaw.rawLen)
             yield gnssRaw
-                        
-                        
-                    
-                    
+    def fix_epochstream(self,gpsLoc):
+        with open(self.raw_path) as f:
+            for i,iline in enumerate(islice(f,self.nHead,None),self.nHead):
+                if not iline[:3].upper() == "FIX":
+                    continue
+                else:
+                    fixline = iline[4:]
+                    fixdata = [i for i in fixline.split(',')]
+                    gpsLoc.loc2rfile(fixdata)
+                    yield True
                     
                     
                 

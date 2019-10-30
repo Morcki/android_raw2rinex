@@ -50,8 +50,8 @@ def LeapSeconds(utcTime):
     leapSecs = np.array([np.sum(tableSeconds <= timeSeconds[i]) for i in range(m)])
     return leapSecs
 def Fct2Ymdhms(fctSeconds):
-    
-    m = len(fctSeconds)
+    fctSeconds = np.array(fctSeconds)
+    m = fctSeconds.size
     
     HOURSEC = 3600
     MINSEC = 60

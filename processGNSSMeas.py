@@ -3,6 +3,45 @@ import GnssThresholds
 import GnssConstants
 import numpy as np
 import Time
+import datetime
+from math import sin,cos,sqrt,pi
+class GpsLoc():
+    def __init__(self,rfile):
+        self.rfile = rfile
+        with open(self.rfile,'w') as f:
+            f.writelines('')
+    @staticmethod
+    def blhxyz(geod,a0,b0):
+        '''
+        input:
+            geod         tuple or list(B,L,H)(3) 单位：（弧度）
+        output:
+    		x            tuple or list(X,Y,Z)(3)
+        '''
+        xyz = [0,0,0]
+        if a0 == 0 or b0 == 0:
+            a = 6378137.0
+            b = 298.257223563  # alpha = (a-b)/a
+        else:
+            a = a0
+            b = b0
+        if b <= 6000000:
+            b = a - a / b
+        e2 = 1 - (b ** 2) / (a ** 2)
+    
+        W = sqrt(1 - e2 * sin(geod[0]) **2)
+        N = a / W
+        xyz[0] = (N + geod[2]) * cos(geod[0]) * cos(geod[1])
+        xyz[1] = (N + geod[2]) * cos(geod[0]) * sin(geod[1])
+        xyz[2] = (N * (1 - e2) + geod[2]) * sin(geod[0])
+        return xyz
+    def loc2rfile(self,fixdata):
+        with open(self.rfile,'a+') as f:
+            blh = [float(i)*pi/180 for i in fixdata[1:4]]
+            utctime = datetime.datetime.fromtimestamp(float(fixdata[-1])/1e3).strftime("%Y/%m/%d %H:%M:%S.%f")[:-3]
+            xyz = GpsLoc.blhxyz(blh,0,0)
+            f.writelines("%s %15.4f %15.4f %15.4f\n" % (utctime,*xyz))
+
 class GnssRaw():
     def __init__(self):
         self._prepself()
@@ -276,8 +315,7 @@ class GnssMeas():
         galfreq = gnssRaw['CarrierFrequencyHz'] * (gnssRaw['ConstellationType'] == 6)
         self.freqNum[np.abs(galfreq - GnssConstants.GAL_E1) < 100] = 1
         self.freqNum[np.abs(galfreq - GnssConstants.GAL_E5a) < 100] = 5
-
-                
+    
     def process(self,gnssRaw):
         # clean invalid data in gnssRaw
         gnssRaw = self.filterValid(gnssRaw)
@@ -293,7 +331,7 @@ class GnssMeas():
         # GPS day number 
         # dayNumber = np.floor( - gnssRaw['FullBiasNanos']*1e-9 / GnssConstants.DAYSEC)
         # GPS time of week
-        towSeconds = (gnssRaw['TimeNanos'] - gnssRaw['BiasNanos']) * 1e-9;
+        towSeconds = (gnssRaw['TimeNanos'] - gnssRaw['BiasNanos']) * 1e-9
         
         # compute time of measurement relative to start of week
         # subtract big longs (i.e. time from 1980) before casting time of week as double
@@ -304,7 +342,6 @@ class GnssMeas():
         tRxNanos = gnssRaw['TimeNanos'] - self.fullBiasNanos - weekNumberNanos
         gnssRaw['State'] = gnssRaw['State'].astype(np.int)
         State = gnssRaw['State'][0]
-#        if not (((State & 2**0) * (State & 2**3)) or ((State & 2**0) * (State & 2**7))) :
         if not ((State & 2**3) or (State & 2**7)) :
             raise Exception('gnssRaw.State[0] must have bits 0 and (3 or 7) before calling Process')
         if not(np.all(tRxNanos >= 0)):
